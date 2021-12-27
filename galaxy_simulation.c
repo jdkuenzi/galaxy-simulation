@@ -30,56 +30,119 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    printf("theta %lf\n", theta);
-
     Box b = new_box(-R_INIT, R_INIT, -R_INIT, R_INIT);
-    const double dt = pow(10, 10);
-    Galaxy *g = create_and_init_galaxy(n_bodies, b, dt);
+    Galaxy *g = create_and_init_galaxy(n_bodies, b, DT);
+    resize_galaxy(g);
     struct gfx_context_t *context = create_gfx();
 
     bool show_quad_tree = false;
     bool show_super_s = false;
+    bool run_simulation = true;
+
+    pthread_mutex_t run_mutex;
+
+    pthread_mutex_t g_mutex;
+    pthread_mutex_init(&g_mutex, NULL);
+
+    pthread_t qtree_thread;
+    pthread_barrier_t barrier_quadtree_main;
+    pthread_barrier_init(&barrier_quadtree_main, NULL, 2);
+    Quad_tree_args *qtree_params = create_qtree_args(
+        &run_simulation, 
+        theta, 
+        DT, 
+        g, 
+        &barrier_quadtree_main,
+        &g_mutex
+    );
+
+    run_qtree_thread(&qtree_thread, qtree_params);
 
     SDL_ShowCursor(SDL_ENABLE);  // needed to se the cursor
     SDL_Keycode key_pressed = 0; // escape key needed
     SDL_Keycode old_key_pressed = key_pressed;
-    while (true)
-    {
+    while (run_simulation)
+    {   
+        gfx_clear(context, COLOR_BLACK);
         SDL_PumpEvents();
         key_pressed = gfx_keypressed();
-        if (key_pressed != old_key_pressed) {
+        pthread_barrier_wait(&barrier_quadtree_main);
+        if (key_pressed != old_key_pressed)
+        {
             if (key_pressed == SDLK_ESCAPE)
             {
-                break;
-            } else if(key_pressed == SDLK_1) {
+                run_simulation = false;
+            }
+            else if (key_pressed == SDLK_1)
+            {
                 show_quad_tree = !show_quad_tree;
             }
             else if (key_pressed == SDLK_2)
             {
                 show_super_s = !show_super_s;
-            } else if (key_pressed == SDLK_r) {
-                g = create_and_init_galaxy(n_bodies, b, dt);
+            }
+            else if (key_pressed == SDLK_r)
+            {
+                pthread_mutex_lock(&g_mutex);
+                free_galaxy(g);
+                g = create_and_init_galaxy(n_bodies, b, DT);
+                qtree_params->g = g;
+                pthread_mutex_unlock(&g_mutex);
             }
             old_key_pressed = key_pressed;
         }
-        resize_galaxy(g);
-        gfx_clear(context, COLOR_BLACK);
+        // pthread_mutex_lock(&g_mutex);
+        // pthread_mutex_unlock(&g_mutex);
         show_pixels(context, g);
-        reset_accelerations(g);
-        Quad_tree *q_tree = create_quad_tree_from_galaxy(g);
-        update_accelerations_of_all_stars(q_tree->root, g, theta);
-        // simple_update_acc_of_all_stars(g);
-        update_positions(g, dt);
-        if (show_quad_tree || show_super_s) {
-            draw_quad_tree(context, q_tree->root, show_quad_tree, show_super_s);
+        if (show_quad_tree || show_super_s)
+        {
+            draw_quad_tree(context, qtree_params->tmp_qtree->root, show_quad_tree, show_super_s);
         }
-        free_quad_tree(q_tree);
+        // Galaxy tmp_g;
+        // deep_copy_g(&tmp_g, g);
+
+        // Quad_tree tmp_qtree;
+        // tmp_qtree.root = (Node *)malloc(sizeof(Node));
+        // deep_copy_q_tree(tmp_qtree.root, qtree_params->tmp_qtree->root);
+        pthread_barrier_wait(&barrier_quadtree_main);
+
         gfx_present(context);
+        // free(tmp_g.stars);
+        // free_node(tmp_qtree.root);
     }
+
+    pthread_join(qtree_thread, NULL);
+    pthread_barrier_destroy(&barrier_quadtree_main);
+    pthread_mutex_destroy(&g_mutex);
+
     gfx_destroy(context);
     free_galaxy(g);
+    free(qtree_params);
+
 
     return EXIT_SUCCESS;
+}
+
+void deep_copy_g(Galaxy *dst, Galaxy *src) {
+    int num_bodies = src->num_bodies;
+    dst->num_bodies = num_bodies;
+    dst->b = src->b;
+    dst->stars = (Star *)malloc(num_bodies * sizeof(Star));
+    memcpy(dst->stars, src->stars, num_bodies * sizeof(Star));
+}
+
+void deep_copy_q_tree(Node *dst, Node *src) {
+    memcpy(dst, src, sizeof(Node));
+    if (!is_leaf(src))
+    {
+        dst->super_s = (Star*)malloc(sizeof(Star));
+        memcpy(dst->super_s, src->super_s, sizeof(Star));
+        for (int i = 0; i < 4; i++)
+        {
+            dst->children[i] = (Node *)malloc(sizeof(Node));
+            deep_copy_q_tree(dst->children[i], src->children[i]);
+        }
+    }
 }
 
 void show_pixels(struct gfx_context_t *context, Galaxy *g)
@@ -88,6 +151,7 @@ void show_pixels(struct gfx_context_t *context, Galaxy *g)
     {
         int x = (int)(g->stars[i].pos_t.x * (context->width / (R_INIT * 2)) + context->width / 2);
         int y = (int)(g->stars[i].pos_t.y * (context->height / (R_INIT * 2)) + context->height / 2);
+        // printf("==== Writing to x : %d --- y : %d ====\n", x, y);
         gfx_putpixel(
             context,
             x,

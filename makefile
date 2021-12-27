@@ -7,9 +7,9 @@
 #
 
 CC = gcc
-FLAGS = -g -Wall -Wextra -std=gnu11 -O2
+FLAGS = -g -Wall -Wextra -std=gnu11
 SANITIZERS = -fsanitize=address -fsanitize=leak -fsanitize=undefined
-LIBS = -lm -lSDL2
+LIBS = -lm -lSDL2 -lpthread
 
 APP=galaxy_simulation
 
@@ -22,7 +22,7 @@ C_MAIN_OBJ:=$(C_MAIN_SRC:.c=.o)
 C_MAIN_DEPS:=$(C_MAIN_OBJ:.o=.d)
 
 $(APP): $(C_LIBS_OBJ) $(C_MAIN_OBJ) 
-	$(CC) $(FLAGS) -O2 $^ -o $@ $(LIBS)
+	$(CC) $(FLAGS) $^ -o $@ $(LIBS)
 
 all: $(APP) tests
 

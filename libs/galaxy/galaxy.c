@@ -8,7 +8,7 @@
 
 #include "galaxy.h"
 
-Galaxy *create_and_init_galaxy(int num_bodies, Box b, double dt) {
+Galaxy *create_and_init_galaxy(int num_bodies, Box b, const double dt) {
     Galaxy* new_galaxy = (Galaxy*)malloc(sizeof(Galaxy));
     if (new_galaxy == NULL) {
         printf("Erreur lors de la creation de la galaxie !");
@@ -100,7 +100,7 @@ void reset_accelerations(Galaxy* g) {
     }
 }
 
-void update_positions(Galaxy* g, double dt) {
+void update_positions(Galaxy* g, const double dt) {
     for (int i = 0; i < g->num_bodies; i++) {
         update_position(&g->stars[i], dt);
     }

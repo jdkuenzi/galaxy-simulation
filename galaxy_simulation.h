@@ -11,13 +11,17 @@
 
 #include "./libs/quadtree/quad_tree.h"
 #include "./libs/gfx/gfx.h"
+#include "quad_tree_thread.h"
 
 #define NX 900
 #define NY 900
 #define MAXCOLOR 255
+#define DT pow(10, 10)
 
 struct gfx_context_t* create_gfx();
-void show_pixels(struct gfx_context_t*, Galaxy*);
+void deep_copy_g(Galaxy *dst, Galaxy *src);
+void deep_copy_q_tree(Node *dst, Node *src);
+void show_pixels(struct gfx_context_t *, Galaxy *);
 void draw_quad_tree(struct gfx_context_t*, Node*, bool, bool);
 void draw_box(struct gfx_context_t*, Box);
 void draw_super_s(struct gfx_context_t*, Star*);

@@ -126,12 +126,13 @@ void free_node(Node *n)
 {
     if (!is_leaf(n))
     {
+        free(n->super_s);
         for (int i = 0; i < 4; ++i)
         {
             free_node(n->children[i]);
         }
-        free(n->super_s);
     }
+
     free(n);
 }
 
