@@ -58,6 +58,7 @@ int main(int argc, char **argv)
             {
                 show_super_s = !show_super_s;
             } else if (key_pressed == SDLK_r) {
+                free_galaxy(g);
                 g = create_and_init_galaxy(n_bodies, b, dt);
             }
             old_key_pressed = key_pressed;
