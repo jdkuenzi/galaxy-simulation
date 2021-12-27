@@ -1,7 +1,0 @@
-{
-    "files.associations": {
-        "galaxy.h": "c",
-        "quad_tree_thread.h": "c",
-        "galaxy_simulation.h": "c"
-    }
-}
