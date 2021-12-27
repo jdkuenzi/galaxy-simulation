@@ -39,8 +39,6 @@ int main(int argc, char **argv)
     bool show_super_s = false;
     bool run_simulation = true;
 
-    pthread_mutex_t run_mutex;
-
     pthread_mutex_t g_mutex;
     pthread_mutex_init(&g_mutex, NULL);
 
@@ -91,24 +89,14 @@ int main(int argc, char **argv)
             }
             old_key_pressed = key_pressed;
         }
-        // pthread_mutex_lock(&g_mutex);
-        // pthread_mutex_unlock(&g_mutex);
         show_pixels(context, g);
         if (show_quad_tree || show_super_s)
         {
             draw_quad_tree(context, qtree_params->tmp_qtree->root, show_quad_tree, show_super_s);
         }
-        // Galaxy tmp_g;
-        // deep_copy_g(&tmp_g, g);
-
-        // Quad_tree tmp_qtree;
-        // tmp_qtree.root = (Node *)malloc(sizeof(Node));
-        // deep_copy_q_tree(tmp_qtree.root, qtree_params->tmp_qtree->root);
         pthread_barrier_wait(&barrier_quadtree_main);
 
         gfx_present(context);
-        // free(tmp_g.stars);
-        // free_node(tmp_qtree.root);
     }
 
     pthread_join(qtree_thread, NULL);
@@ -119,30 +107,7 @@ int main(int argc, char **argv)
     free_galaxy(g);
     free(qtree_params);
 
-
     return EXIT_SUCCESS;
-}
-
-void deep_copy_g(Galaxy *dst, Galaxy *src) {
-    int num_bodies = src->num_bodies;
-    dst->num_bodies = num_bodies;
-    dst->b = src->b;
-    dst->stars = (Star *)malloc(num_bodies * sizeof(Star));
-    memcpy(dst->stars, src->stars, num_bodies * sizeof(Star));
-}
-
-void deep_copy_q_tree(Node *dst, Node *src) {
-    memcpy(dst, src, sizeof(Node));
-    if (!is_leaf(src))
-    {
-        dst->super_s = (Star*)malloc(sizeof(Star));
-        memcpy(dst->super_s, src->super_s, sizeof(Star));
-        for (int i = 0; i < 4; i++)
-        {
-            dst->children[i] = (Node *)malloc(sizeof(Node));
-            deep_copy_q_tree(dst->children[i], src->children[i]);
-        }
-    }
 }
 
 void show_pixels(struct gfx_context_t *context, Galaxy *g)

@@ -7,7 +7,7 @@
 #
 
 CC = gcc
-FLAGS = -g -Wall -Wextra -std=gnu11
+FLAGS = -g -Wall -Wextra -std=gnu11 -O2
 SANITIZERS = -fsanitize=address -fsanitize=leak -fsanitize=undefined
 LIBS = -lm -lSDL2 -lpthread
 

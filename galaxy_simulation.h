@@ -19,8 +19,6 @@
 #define DT pow(10, 10)
 
 struct gfx_context_t* create_gfx();
-void deep_copy_g(Galaxy *dst, Galaxy *src);
-void deep_copy_q_tree(Node *dst, Node *src);
 void show_pixels(struct gfx_context_t *, Galaxy *);
 void draw_quad_tree(struct gfx_context_t*, Node*, bool, bool);
 void draw_box(struct gfx_context_t*, Box);
