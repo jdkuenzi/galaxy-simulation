@@ -10,10 +10,10 @@ Jean-Daniel Küenzi - jeandanielkuenzi@gmail.com
 
 ## Features
 
-Keyboard action :
-- key 1 -> toggle quad tree display
-- key 2 -> toggle super stars display
-- key r -> init new galaxy (reset)
+Keyboard actions :
+- Key 1 -> Toggle quadtree display
+- Key 2 -> Toggle super stars display
+- Key r -> Init new galaxy (reset)
 
 ## Infos
 
