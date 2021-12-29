@@ -30,8 +30,6 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    printf("theta %lf\n", theta);
-
     Box b = new_box(-R_INIT, R_INIT, -R_INIT, R_INIT);
     const double dt = pow(10, 10);
     Galaxy *g = create_and_init_galaxy(n_bodies, b, dt);
