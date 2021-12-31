@@ -17,7 +17,8 @@ int main(int argc, char **argv)
     {
         n_bodies = atoi(argv[1]);
         theta = atof(argv[2]);
-        if (n_bodies <= 0 || theta <= 0) {
+        if (n_bodies <= 0 || theta <= 0)
+        {
             printf("num_stars et/ou theta doivent être plus grand que 0\n");
             return EXIT_FAILURE;
         }
@@ -31,8 +32,7 @@ int main(int argc, char **argv)
     }
 
     Box b = new_box(-R_INIT, R_INIT, -R_INIT, R_INIT);
-    const double dt = pow(10, 10);
-    Galaxy *g = create_and_init_galaxy(n_bodies, b, dt);
+    Galaxy *g = create_and_init_galaxy(n_bodies, b, DT);
     struct gfx_context_t *context = create_gfx();
 
     bool show_quad_tree = false;
@@ -45,19 +45,24 @@ int main(int argc, char **argv)
     {
         SDL_PumpEvents();
         key_pressed = gfx_keypressed();
-        if (key_pressed != old_key_pressed) {
+        if (key_pressed != old_key_pressed)
+        {
             if (key_pressed == SDLK_ESCAPE)
             {
                 break;
-            } else if(key_pressed == SDLK_1) {
+            }
+            else if (key_pressed == SDLK_1)
+            {
                 show_quad_tree = !show_quad_tree;
             }
             else if (key_pressed == SDLK_2)
             {
                 show_super_s = !show_super_s;
-            } else if (key_pressed == SDLK_r) {
+            }
+            else if (key_pressed == SDLK_r)
+            {
                 free_galaxy(g);
-                g = create_and_init_galaxy(n_bodies, b, dt);
+                g = create_and_init_galaxy(n_bodies, b, DT);
             }
             old_key_pressed = key_pressed;
         }
@@ -68,8 +73,9 @@ int main(int argc, char **argv)
         Quad_tree *q_tree = create_quad_tree_from_galaxy(g);
         update_accelerations_of_all_stars(q_tree->root, g, theta);
         // simple_update_acc_of_all_stars(g);
-        update_positions(g, dt);
-        if (show_quad_tree || show_super_s) {
+        update_positions(g, DT);
+        if (show_quad_tree || show_super_s)
+        {
             draw_quad_tree(context, q_tree->root, show_quad_tree, show_super_s);
         }
         free_quad_tree(q_tree);
@@ -91,18 +97,20 @@ void show_pixels(struct gfx_context_t *context, Galaxy *g)
             context,
             x,
             y,
-            COLOR_WHITE);
+            g->stars[i].color);
     }
 }
 
 void draw_quad_tree(struct gfx_context_t *context, Node *n, bool show_quad_tree, bool show_super_s)
 {
-    if (show_quad_tree) {
+    if (show_quad_tree)
+    {
         draw_box(context, n->b);
     }
     if (!is_leaf(n))
     {
-        if (show_super_s) {
+        if (show_super_s)
+        {
             draw_super_s(context, n->super_s);
         }
         for (int i = 0; i < 4; i++)
@@ -116,34 +124,42 @@ void draw_super_s(struct gfx_context_t *context, Star *super_s)
 {
     int x = (int)(super_s->pos_t.x * (context->width / (R_INIT * 2)) + context->width / 2);
     int y = (int)(super_s->pos_t.y * (context->height / (R_INIT * 2)) + context->height / 2);
-
-    if (x > 0) {
-        gfx_putpixel(context, x - 1, y, COLOR_RED);
-        if (y > 0) {
-            gfx_putpixel(context, x - 1, y - 1, COLOR_RED);
+    uint32_t color = super_s->color;
+    if (x > 0)
+    {
+        gfx_putpixel(context, x - 1, y, color);
+        if (y > 0)
+        {
+            gfx_putpixel(context, x - 1, y - 1, color);
         }
-        if (y < NY) {
-            gfx_putpixel(context, x - 1, y + 1, COLOR_RED);
-        }
-    }
-    
-    if (x < NX) {
-        gfx_putpixel(context, x + 1, y, COLOR_RED);
-        if (y > 0) {
-            gfx_putpixel(context, x + 1, y - 1, COLOR_RED);
-        }
-        if (y < NY) {
-            gfx_putpixel(context, x + 1, y + 1, COLOR_RED);
+        if (y < NY)
+        {
+            gfx_putpixel(context, x - 1, y + 1, color);
         }
     }
 
-    if(y > 0) {
-        gfx_putpixel(context, x, y - 1, COLOR_RED);
+    if (x < NX)
+    {
+        gfx_putpixel(context, x + 1, y, color);
+        if (y > 0)
+        {
+            gfx_putpixel(context, x + 1, y - 1, color);
+        }
+        if (y < NY)
+        {
+            gfx_putpixel(context, x + 1, y + 1, color);
+        }
     }
-    if(y < NY) {
-        gfx_putpixel(context, x, y + 1, COLOR_RED);
+
+    if (y > 0)
+    {
+        gfx_putpixel(context, x, y - 1, color);
     }
-    gfx_putpixel(context, x, y, COLOR_RED);
+    if (y < NY)
+    {
+        gfx_putpixel(context, x, y + 1, color);
+    }
+    gfx_putpixel(context, x, y, color);
 }
 
 void draw_box(struct gfx_context_t *context, Box b)
