@@ -96,7 +96,7 @@ int main(int argc, char **argv)
     SDL_Keycode old_key_pressed = key_pressed;
 
     int thread_id = 0;
-    int step = g->num_bodies / nb_threads;
+    int step = ceil((double)n_bodies / (double)nb_threads);
     int from = thread_id * step;
     int to = from + step;
     while (run_simulation)
@@ -136,16 +136,16 @@ int main(int argc, char **argv)
         // Wait on all threads to stop update and clean
         pthread_barrier_wait(&barrier);
 
-        set_i_to_remove(g, from, to, &nb_to_remove, i_to_remove, &resize_mutex);
+        int local_nb_to_remove = set_i_to_remove(g, from, to, &nb_to_remove, i_to_remove, &resize_mutex);
         // Wait on all threads to stop setting stars not in box
         pthread_barrier_wait(&barrier);
 
-        copy_without(g, i_to_remove, nb_to_remove, &remove_index, from, to, nb_threads, thread_id, &barrier, &resize_mutex);
+        copy_without(g, i_to_remove, nb_to_remove, &remove_index, local_nb_to_remove, from, to, nb_threads, thread_id, &barrier, &resize_mutex);
         i_to_remove = (int *)realloc((void *)i_to_remove, g->num_bodies * sizeof(int));
         // Wait while threads 0 resize galaxy
         pthread_barrier_wait(&barrier);
-
-        step = g->num_bodies / nb_threads;
+        // run_simulation = false;
+        step = ceil((double)g->num_bodies / (double)nb_threads);
         from = thread_id * step;
         to = from + step;
         show_pixels(context, g, from, to);

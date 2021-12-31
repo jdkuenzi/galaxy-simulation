@@ -118,24 +118,17 @@ void free_galaxy(Galaxy *g)
     // free(g);
 }
 
-void copy_without(Galaxy *g, int *i_to_remove, int nb_to_remove, int *remove_index, int from, int to, int nb_threads, int thread_id, pthread_barrier_t *barrier, pthread_mutex_t *resize_mutex)
+void copy_without(Galaxy *g, int *i_to_remove, int nb_to_remove, int *remove_index, int local_nb_to_remove, int from, int to, int nb_threads, int thread_id, pthread_barrier_t *barrier, pthread_mutex_t *resize_mutex)
 {
     if (nb_to_remove > 0)
     {
-        Star *tmp = g->stars;
-        int old_size = g->num_bodies;
+        // int old_size = g->num_bodies;
         int new_size = g->num_bodies - nb_to_remove;
+        int local_size = to - from - local_nb_to_remove;
         // Wait on all threads to init tmp ptr
         // printf("BEFORE thread_id: %d g->stars: %p tmp: %p\n", thread_id, g->stars, tmp);
-        pthread_barrier_wait(barrier);
-        if (thread_id == 0)
-        {
-            Star *new_stars = (Star *)malloc(new_size * sizeof(Star));
-            g->stars = new_stars;
-            g->num_bodies = new_size;
-        }
-        // Wait on threads 0 to init new stars ptr
-        pthread_barrier_wait(barrier);
+        Star *tmp = (Star *)malloc(local_size * sizeof(Star));
+
         // printf("AFTER thread_id: %d g->stars: %p tmp: %p\n", thread_id, g->stars, tmp);
 
         // int j_step = new_size / nb_threads;
@@ -145,6 +138,7 @@ void copy_without(Galaxy *g, int *i_to_remove, int nb_to_remove, int *remove_ind
         // {
         //     printf("===================\n");
         // }
+        int j = 0;
         for (int i = from; i < to; i++)
         {
             if (i_to_remove[i] == 0)
@@ -153,23 +147,40 @@ void copy_without(Galaxy *g, int *i_to_remove, int nb_to_remove, int *remove_ind
                 // {
                 //     printf("old_size:%d new_size:%d i:%d j_from:%d\n", old_size, new_size, i, j_from);
                 // }
-                pthread_mutex_lock(resize_mutex);
-                g->stars[*remove_index] = tmp[i];
-                *remove_index += 1;
-                pthread_mutex_unlock(resize_mutex);
+                // pthread_mutex_lock(resize_mutex);
+                tmp[j] = g->stars[i];
+                j++;
+                // *remove_index += 1;
+                // pthread_mutex_unlock(resize_mutex);
             }
         }
+
+        // Wait on all threads
+        pthread_barrier_wait(barrier);
+        if (thread_id == 0)
+        {
+            g->stars = (Star *)realloc((void *)g->stars, new_size * sizeof(Star));
+            g->num_bodies = new_size;
+        }
+        // Wait on threads 0 to init new stars ptr
+        pthread_barrier_wait(barrier);
         // if (thread_id == 1)
         // {
         //     printf("===================\n");
         // }
 
-        // Wait on all threads to stop finish copy
-        pthread_barrier_wait(barrier);
-        if (thread_id == 0)
-        {
-            free(tmp);
-        }
+        pthread_mutex_lock(resize_mutex);
+        // printf("threads:%d copy %d stars from %d\n", thread_id, local_size, *remove_index);
+        memcpy((void *)&g->stars[*remove_index], (void *)tmp, local_size * sizeof(Star));
+        *remove_index += local_size;
+        pthread_mutex_unlock(resize_mutex);
+
+        // // Wait on all threads to stop finish copy
+        // pthread_barrier_wait(barrier);
+        // if (thread_id == 0)
+        // {
+        free(tmp);
+        // }
     }
 }
 
@@ -192,18 +203,21 @@ void copy_without(Galaxy *g, int *i_to_remove, int nb_to_remove, int *remove_ind
 //     }
 // }
 
-void set_i_to_remove(Galaxy *g, int from, int to, int *nb_to_remove, int *i_to_remove, pthread_mutex_t *resize_mutex)
+int set_i_to_remove(Galaxy *g, int from, int to, int *nb_to_remove, int *i_to_remove, pthread_mutex_t *resize_mutex)
 {
+    int local_nb_to_remove = 0;
     for (int i = from; i < to; i++)
     {
         if (!is_inside(g->b, g->stars[i].pos_t))
         {
             i_to_remove[i] = 1;
-            pthread_mutex_lock(resize_mutex);
-            *nb_to_remove += 1;
-            pthread_mutex_unlock(resize_mutex);
+            local_nb_to_remove += 1;
         }
     }
+    pthread_mutex_lock(resize_mutex);
+    *nb_to_remove += local_nb_to_remove;
+    pthread_mutex_unlock(resize_mutex);
+    return local_nb_to_remove;
 }
 
 void clean_i_to_remove(int from, int to, int *nb_to_remove, int *i_to_remove, int *remove_index, pthread_mutex_t *resize_mutex)

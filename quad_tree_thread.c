@@ -45,7 +45,7 @@ void *qtree_thread(void *args)
     Quad_tree_args *qtree_params = (Quad_tree_args *)args;
     int thread_id = qtree_params->thread_id;
     int nb_threads = qtree_params->nb_threads;
-    int step = qtree_params->g->num_bodies / nb_threads;
+    int step = ceil((double)qtree_params->g->num_bodies / (double)nb_threads);
     int from = thread_id * step;
     int to;
     if (thread_id == nb_threads - 1)
@@ -69,14 +69,14 @@ void *qtree_thread(void *args)
         // Wait on all threads to stop update and clean
         pthread_barrier_wait(qtree_params->barrier);
 
-        set_i_to_remove(qtree_params->g, from, to, qtree_params->nb_to_remove, *qtree_params->i_to_remove, qtree_params->resize_mutex);
+        int local_nb_to_remove = set_i_to_remove(qtree_params->g, from, to, qtree_params->nb_to_remove, *qtree_params->i_to_remove, qtree_params->resize_mutex);
         // Wait on all threads to stop setting stars not in box
         pthread_barrier_wait(qtree_params->barrier);
-        copy_without(qtree_params->g, *qtree_params->i_to_remove, *qtree_params->nb_to_remove, qtree_params->remove_index, from, to, nb_threads, thread_id, qtree_params->barrier, qtree_params->resize_mutex);
+        copy_without(qtree_params->g, *qtree_params->i_to_remove, *qtree_params->nb_to_remove, qtree_params->remove_index, local_nb_to_remove, from, to, nb_threads, thread_id, qtree_params->barrier, qtree_params->resize_mutex);
         // Wait while threads 0 resize galaxy
         pthread_barrier_wait(qtree_params->barrier);
 
-        step = qtree_params->g->num_bodies / nb_threads;
+        step = ceil((double)qtree_params->g->num_bodies / (double)nb_threads);
         from = thread_id * step;
         if (thread_id == nb_threads - 1)
         {

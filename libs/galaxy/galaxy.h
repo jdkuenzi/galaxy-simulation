@@ -15,7 +15,7 @@
 
 #define R_INIT pow(10, 18)
 #define M_MIN pow(10, 20)
-#define M_CENTRAL pow(10, 6) * M_SOLAIRE
+#define M_CENTRAL pow(10, 9) * M_SOLAIRE
 
 typedef struct __galaxy
 {
@@ -39,6 +39,7 @@ void copy_without(
     int *i_to_remove,
     int nb_to_remove,
     int *remove_index,
+    int local_nb_to_remove,
     int from,
     int to,
     int nb_threads,
@@ -46,7 +47,7 @@ void copy_without(
     pthread_barrier_t *barrier,
     pthread_mutex_t *resize_mutex);
 
-void set_i_to_remove(
+int set_i_to_remove(
     Galaxy *g,
     int from,
     int to,
