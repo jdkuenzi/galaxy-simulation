@@ -8,20 +8,13 @@
 
 #include "quad_tree.h"
 
-Quad_tree *create_quad_tree_from_galaxy(const Galaxy *const g)
+void create_quad_tree_from_galaxy(Quad_tree *q_tree, const Galaxy *const g)
 {
-    Quad_tree *new_quad_tree = (Quad_tree *)malloc(sizeof(Quad_tree));
-    if (new_quad_tree == NULL)
-    {
-        printf("Erreur lors de la création du quad tree !");
-        exit(0);
-    }
-    new_quad_tree->root = create_new_node(g->b);
+    q_tree->root = create_new_node(g->b);
     for (int i = 0; i < g->num_bodies; i++)
     {
-        insert_star(new_quad_tree->root, &g->stars[i]);
+        insert_star(q_tree->root, &g->stars[i]);
     }
-    return new_quad_tree;
 }
 
 Node *create_new_node(Box b)
@@ -108,9 +101,9 @@ void update_acceleration_from_node(const Node *const n, Star *s, double theta)
     }
 }
 
-void update_accelerations_of_all_stars(const Node *const n, Galaxy *g, double theta)
+void update_accelerations_of_all_stars(const Node *const n, Galaxy *g, int from, int to, double theta)
 {
-    for (int i = 0; i < g->num_bodies; i++)
+    for (int i = from; i < to; i++)
     {
         update_acceleration_from_node(n, &g->stars[i], theta);
     }
