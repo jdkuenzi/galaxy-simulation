@@ -206,42 +206,42 @@ void draw_super_s(struct gfx_context_t *context, Star *super_s)
 {
     int x = (int)(super_s->pos_t.x * (context->width / (R_INIT * 2)) + context->width / 2);
     int y = (int)(super_s->pos_t.y * (context->height / (R_INIT * 2)) + context->height / 2);
-
+    uint32_t color = super_s->color;
     if (x > 0)
     {
-        gfx_putpixel(context, x - 1, y, COLOR_RED);
+        gfx_putpixel(context, x - 1, y, color);
         if (y > 0)
         {
-            gfx_putpixel(context, x - 1, y - 1, COLOR_RED);
+            gfx_putpixel(context, x - 1, y - 1, color);
         }
         if (y < NY)
         {
-            gfx_putpixel(context, x - 1, y + 1, COLOR_RED);
+            gfx_putpixel(context, x - 1, y + 1, color);
         }
     }
 
     if (x < NX)
     {
-        gfx_putpixel(context, x + 1, y, COLOR_RED);
+        gfx_putpixel(context, x + 1, y, color);
         if (y > 0)
         {
-            gfx_putpixel(context, x + 1, y - 1, COLOR_RED);
+            gfx_putpixel(context, x + 1, y - 1, color);
         }
         if (y < NY)
         {
-            gfx_putpixel(context, x + 1, y + 1, COLOR_RED);
+            gfx_putpixel(context, x + 1, y + 1, color);
         }
     }
 
     if (y > 0)
     {
-        gfx_putpixel(context, x, y - 1, COLOR_RED);
+        gfx_putpixel(context, x, y - 1, color);
     }
     if (y < NY)
     {
-        gfx_putpixel(context, x, y + 1, COLOR_RED);
+        gfx_putpixel(context, x, y + 1, color);
     }
-    gfx_putpixel(context, x, y, COLOR_RED);
+    gfx_putpixel(context, x, y, color);
 }
 
 void draw_box(struct gfx_context_t *context, Box b)

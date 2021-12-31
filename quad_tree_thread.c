@@ -106,6 +106,6 @@ void show_pixels(struct gfx_context_t *context, Galaxy *g, int from, int to)
             context,
             x,
             y,
-            COLOR_WHITE);
+            g->stars[i].color);
     }
 }

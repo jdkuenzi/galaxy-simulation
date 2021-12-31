@@ -15,7 +15,7 @@
 
 #define R_INIT pow(10, 18)
 #define M_MIN pow(10, 20)
-#define M_CENTRAL pow(10, 9) * M_SOLAIRE
+#define M_CENTRAL pow(10, 6) * M_SOLAIRE
 
 typedef struct __galaxy
 {

@@ -20,19 +20,22 @@ void create_and_init_galaxy(Galaxy *g, int num_bodies, Box b, const double dt)
     g->b = b;
 
     Vec *zero_vec = new_vec(0.0, 0.0);
+    srand(0); // Initialise rand
+    double heat = rand_a_b(MIN_HEAT, MAX_HEAT);
 
-    Star *central_star = new_star_vel(*zero_vec, *zero_vec, *zero_vec, M_CENTRAL, dt); // Etoile Initiale, au centre
+    Star *central_star = new_star_vel(*zero_vec, *zero_vec, *zero_vec, M_CENTRAL, heat, dt); // Etoile Initiale, au centre
     g->stars[0] = *central_star;
     free(central_star);
 
-    srand(time(NULL)); // Initialise rand
-
     for (int i = 1; i < num_bodies; i++)
     {
+        srand(i); // Initialise rand
+
         double m_star = get_random_mass(0, 10, M_SOLAIRE);
+        heat = rand_a_b(MIN_HEAT, MAX_HEAT);
         Vec *pos_star = get_random_position(0, 1);
         Vec *vel_vec = get_velocite(m_star, M_CENTRAL, pos_star);
-        Star *new_star = new_star_vel(*pos_star, *vel_vec, *zero_vec, m_star, dt);
+        Star *new_star = new_star_vel(*pos_star, *vel_vec, *zero_vec, m_star, heat, dt);
         g->stars[i] = *new_star;
         free(pos_star);
         free(vel_vec);
