@@ -6,10 +6,11 @@
 # Desc.    : Makefile servant a compiler les differentes parties du tp
 #
 
-CC = gcc
-FLAGS = -g -Wall -Wextra -std=gnu11 -O2
-SANITIZERS = -fsanitize=address -fsanitize=leak -fsanitize=undefined
-LIBS = -lm -lSDL2
+CC =gcc
+FLAGS =-std=gnu11# -g -Wall -Wextra
+OPT=-O3
+SANITIZERS =-fsanitize=address -fsanitize=leak -fsanitize=undefined
+LIBS =-lm -lSDL2
 
 APP=galaxy_simulation
 
@@ -22,7 +23,7 @@ C_MAIN_OBJ:=$(C_MAIN_SRC:.c=.o)
 C_MAIN_DEPS:=$(C_MAIN_OBJ:.o=.d)
 
 $(APP): $(C_LIBS_OBJ) $(C_MAIN_OBJ) 
-	$(CC) $(FLAGS) $^ -o $@ $(LIBS)
+	$(CC) $(FLAGS) $(OPT) $^ -o $@ $(LIBS)
 
 all: $(APP) tests
 
@@ -30,7 +31,7 @@ tests: $(C_LIBS_OBJ)
 	$(MAKE) -C tests
 
 %.o: %.c
-	$(CC) $(FLAGS) -c $< -o $@
+	$(CC) $(FLAGS) $(OPT) -c $< -o $@
 
 .PHONY: tests
 
