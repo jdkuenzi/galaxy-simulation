@@ -8,7 +8,7 @@
 
 CC =gcc
 FLAGS =-std=gnu11# -g -Wall -Wextra
-OPT=-O3
+OPT=-O2
 SANITIZERS =-fsanitize=address -fsanitize=leak -fsanitize=undefined
 LIBS =-lm -lSDL2
 

@@ -31,7 +31,7 @@ void divide_in_four(Box b, Box *b_4)
 
 bool is_inside(Box b, Vec v)
 {
-    return (v.x > b.x0 && v.x < b.x1 && v.y > b.y0 && v.y < b.y1) ? true : false;
+    return (v.x >= b.x0 && v.x <= b.x1 && v.y >= b.y0 && v.y <= b.y1) ? true : false;
 }
 
 double compute_length(Box b)
