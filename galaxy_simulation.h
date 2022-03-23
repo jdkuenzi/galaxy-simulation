@@ -15,7 +15,7 @@
 #define NX 1000
 #define NY 1000
 #define MAXCOLOR 255
-#define DT pow(10, 10)
+#define DT pow(10, 14)
 
 struct gfx_context_t *create_gfx();
 void show_pixels(struct gfx_context_t *, Galaxy *);

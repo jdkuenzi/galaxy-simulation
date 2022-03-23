@@ -33,6 +33,7 @@ int main(int argc, char **argv)
 
     Box b = new_box(-R_INIT, R_INIT, -R_INIT, R_INIT);
     Galaxy *g = create_and_init_galaxy(n_bodies, b, DT);
+    Quad_tree q_tree;
     struct gfx_context_t *context = create_gfx();
 
     bool show_quad_tree = false;
@@ -70,15 +71,15 @@ int main(int argc, char **argv)
         gfx_clear(context, COLOR_BLACK);
         show_pixels(context, g);
         reset_accelerations(g);
-        Quad_tree *q_tree = create_quad_tree_from_galaxy(g);
-        update_accelerations_of_all_stars(q_tree->root, g, theta);
+        create_quad_tree_from_galaxy(&q_tree, g);
+        update_accelerations_of_all_stars(q_tree.root, g, theta);
         // simple_update_acc_of_all_stars(g);
         update_positions(g, DT);
         if (show_quad_tree || show_super_s)
         {
-            draw_quad_tree(context, q_tree->root, show_quad_tree, show_super_s);
+            draw_quad_tree(context, q_tree.root, show_quad_tree, show_super_s);
         }
-        free_quad_tree(q_tree);
+        free_node(q_tree.root);
         gfx_present(context);
     }
     gfx_destroy(context);

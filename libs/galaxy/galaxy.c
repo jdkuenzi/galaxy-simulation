@@ -26,7 +26,7 @@ Galaxy *create_and_init_galaxy(int num_bodies, Box b, double dt)
     new_galaxy->b = b;
 
     Vec *zero_vec = new_vec(0.0, 0.0);
-    srand(0); // Initialise rand
+    srand(time(NULL)); // Initialise rand
     double heat = rand_a_b(MIN_HEAT, MAX_HEAT);
 
     Star *central_star = new_star_vel(*zero_vec, *zero_vec, *zero_vec, M_CENTRAL, heat, dt); // Etoile Initiale, au centre
@@ -35,7 +35,6 @@ Galaxy *create_and_init_galaxy(int num_bodies, Box b, double dt)
 
     for (int i = 1; i < num_bodies; i++)
     {
-        srand(i);
         double m_star = get_random_mass(0, 10, M_SOLAIRE);
         heat = rand_a_b(MIN_HEAT, MAX_HEAT);
         Vec *pos_star = get_random_position(0, 1);

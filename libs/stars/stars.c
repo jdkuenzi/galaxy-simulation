@@ -64,7 +64,7 @@ uint32_t get_color(const Star *const s)
     }
     else if (s->heat > YELLOW_HEAT && s->heat <= WHITE_HEAT)
     {
-        return MAKE_COLOR(255, 255, 255);
+        return MAKE_COLOR(211, 211, 211);
     }
     else if (s->heat > WHITE_HEAT && s->heat <= LIGHT_BLUE_HEAT)
     {

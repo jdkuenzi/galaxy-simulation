@@ -22,8 +22,8 @@ C_MAIN_SRC:=$(wildcard *.c)
 C_MAIN_OBJ:=$(C_MAIN_SRC:.c=.o)
 C_MAIN_DEPS:=$(C_MAIN_OBJ:.o=.d)
 
-$(APP): $(C_LIBS_OBJ) $(C_MAIN_OBJ) 
-	$(CC) $(FLAGS) $(OPT) $^ -o $@ $(LIBS)
+$(APP): $(C_LIBS_OBJ) $(C_MAIN_OBJ)
+	$(CC) $(FLAGS) $(OPT) $^ -o $@ $(LIBS) $(SANITIZERS)
 
 all: $(APP) tests
 
@@ -31,7 +31,7 @@ tests: $(C_LIBS_OBJ)
 	$(MAKE) -C tests
 
 %.o: %.c
-	$(CC) $(FLAGS) $(OPT) -c $< -o $@
+	$(CC) $(FLAGS) $(OPT) -c $< -o $@ $(SANITIZERS)
 
 .PHONY: tests
 

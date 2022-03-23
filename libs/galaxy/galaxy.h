@@ -12,7 +12,7 @@
 #include <time.h>
 #include "../stars/stars.h"
 
-#define R_INIT pow(10, 18)
+#define R_INIT pow(10, 20)
 #define M_MIN pow(10, 20)
 #define M_CENTRAL pow(10, 6) * M_SOLAIRE
 

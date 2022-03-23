@@ -8,20 +8,19 @@
 
 #include "quad_tree.h"
 
-Quad_tree *create_quad_tree_from_galaxy(const Galaxy *const g)
+int create_quad_tree_from_galaxy(Quad_tree *qtree, const Galaxy *const g)
 {
-    Quad_tree *new_quad_tree = (Quad_tree *)malloc(sizeof(Quad_tree));
-    if (new_quad_tree == NULL)
-    {
-        printf("Erreur lors de la création du quad tree !");
-        exit(0);
-    }
-    new_quad_tree->root = create_new_node(g->b);
-    for (int i = 0; i < g->num_bodies; i++)
-    {
-        insert_star(new_quad_tree->root, &g->stars[i]);
-    }
-    return new_quad_tree;
+    // Quad_tree *new_quad_tree = (Quad_tree *)malloc(sizeof(Quad_tree));
+    // if (new_quad_tree == NULL)
+    // {
+    //     printf("Erreur lors de la création du quad tree !");
+    //     exit(0);
+    // }
+    qtree->root = create_new_node(g->b);
+    // for (int i = 0; i < g->num_bodies; i++)
+    // {
+    return insert_star_rec(qtree->root, qtree->root, qtree->root, g->stars, &g->stars[0], 0, -1, g->num_bodies);
+    // }
 }
 
 Node *create_new_node(Box b)
@@ -43,7 +42,50 @@ Node *create_new_node(Box b)
     return node;
 }
 
-void insert_star(Node *n, Star *s)
+// void insert_star(Node *n, Star *s)
+// {
+//     if (n != NULL && is_inside(n->b, s->pos_t))
+//     {
+//         if (is_leaf(n))
+//         {
+//             if (n->is_empty)
+//             {
+//                 n->s = s;
+//                 n->is_empty = false;
+//             }
+//             else
+//             {
+//                 Box b_4[4];
+//                 divide_in_four(n->b, b_4);
+//                 for (int i = 0; i < 4; i++)
+//                 {
+//                     n->children[i] = create_new_node(b_4[i]);
+//                 }
+//                 for (int i = 0; i < 4; i++)
+//                 {
+//                     insert_star(n->children[i], n->s);
+//                 }
+//                 for (int i = 0; i < 4; i++)
+//                 {
+//                     insert_star(n->children[i], s);
+//                 }
+//                 n->super_s = new_super_star(n->s, s);
+//                 n->is_empty = true;
+//                 n->s = NULL;
+//             }
+//         }
+//         else
+//         {
+//             increment_super_star(n->super_s, s);
+//             for (int i = 0; i < 4; i++)
+//             {
+//                 insert_star(n->children[i], s);
+//             }
+//         }
+//     }
+// }
+
+int insert_star_rec(Node *r, Node *p, Node *n, Star *stars, Star *s, int si, int ci, int num_bodies)
 {
     if (n != NULL && is_inside(n->b, s->pos_t))
     {
@@ -53,37 +95,48 @@ void insert_star(Node *n, Star *s)
             {
                 n->s = s;
                 n->is_empty = false;
+
+                if (ci > -1 && s != &stars[si])
+                {
+                    return insert_star_rec(r, p, p->children[0], stars, &stars[si], si, 0, num_bodies);
+                }
+
+                si += 1;
+                if (si < num_bodies)
+                {
+                    return insert_star_rec(r, r, r, stars, &stars[si], si, -1, num_bodies);
+                }
             }
             else
             {
                 Box b_4[4];
                 divide_in_four(n->b, b_4);
+
                 for (int i = 0; i < 4; i++)
                 {
                     n->children[i] = create_new_node(b_4[i]);
                 }
-                for (int i = 0; i < 4; i++)
-                {
-                    insert_star(n->children[i], n->s);
-                }
-                for (int i = 0; i < 4; i++)
-                {
-                    insert_star(n->children[i], s);
-                }
+
                 n->super_s = new_super_star(n->s, s);
                 n->is_empty = true;
-                n->s = NULL;
+                // Star ns = *n->s;
+                // n->s = NULL;
+
+                return insert_star_rec(r, n, n->children[0], stars, n->s, si, 0, num_bodies);
             }
         }
         else
         {
             increment_super_star(n->super_s, s);
-            for (int i = 0; i < 4; i++)
-            {
-                insert_star(n->children[i], s);
-            }
+            return insert_star_rec(r, n, n->children[0], stars, s, si, 0, num_bodies);
         }
     }
+    else
+    {
+        ci += 1;
+        return insert_star_rec(r, p, p->children[ci], stars, s, si, ci, num_bodies);
+    }
+    return 0;
 }
 
 void update_acceleration_from_node(const Node *const n, Star *s, double theta)

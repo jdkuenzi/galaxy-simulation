@@ -8,7 +8,8 @@
 
 #include "box.h"
 
-Box new_box(double x0, double x1, double y0, double y1) {
+Box new_box(double x0, double x1, double y0, double y1)
+{
     Box new_box;
     new_box.x0 = x0;
     new_box.x1 = x1;
@@ -28,11 +29,13 @@ void divide_in_four(Box b, Box *b_4)
     b_4[3] = new_box(middle_x, b.x1, b.y0, middle_y); // right-lower
 }
 
-bool is_inside(Box b, Vec v) {
+bool is_inside(Box b, Vec v)
+{
     return (v.x >= b.x0 && v.x <= b.x1 && v.y >= b.y0 && v.y <= b.y1) ? true : false;
 }
 
-double compute_length(Box b) {
+double compute_length(Box b)
+{
     double length_h = b.x1 - b.x0;
     double length_v = b.y1 - b.y0;
     return (length_h >= length_v) ? length_h : length_v;
