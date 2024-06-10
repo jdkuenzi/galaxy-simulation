@@ -1,6 +1,6 @@
 # Galaxy simulation with Barnes-Hut algorithm and Verlet integration
 
-This project is a galaxy simulation using the Barnes-Hut agorithm and Verlet integration. Currently the execution of the code is sequential but I will develop a concurrent version as well as translate and refactor the code.
+This project is a galaxy simulation using the Barnes-Hut algorithm and Verlet integration. Currently the execution of the code is sequential but I will develop a concurrent version as well as translate and refactor the code.
 
 This project was made during my B.Sc. at the *Haute école du paysage, d’ingénierie et d’architecture de Genève (HEPIA)* at Geneva in Switzerland.
 
